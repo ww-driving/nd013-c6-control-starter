@@ -858,6 +858,19 @@ def game_loop(args):
                 location_y = t.location.y
                 location_z = t.location.z
 
+                # draw path
+                line_color = carla.Color(0, 125, 0)
+                start = carla.Transform()
+                end = carla.Transform()
+                for i in range(len(x_points)-1):
+                    start.location.x = x_points[i]
+                    start.location.y = y_points[i]
+                    end.location.x = x_points[i+1]
+                    end.location.y = y_points[i+1]
+                    start.location.z = 2 + v_points[i]
+                    end.location.z = 2 + v_points[i+1]
+                    world.world.debug.draw_arrow(start.location, end.location, 0.05, 0.05, line_color, 5)
+
                 ws.send(json.dumps({'traj_x': x_points, 'traj_y': y_points, 'traj_v': v_points ,'yaw': _prev_yaw, "velocity": velocity, 'time': sim_time, 'waypoint_x': waypoint_x, 'waypoint_y': waypoint_y, 'waypoint_t': waypoint_t, 'waypoint_j': waypoint_j, 'tl_state': _tl_state, 'obst_x': obst_x, 'obst_y': obst_y, 'location_x': location_x, 'location_y': location_y, 'location_z': location_z } ))
 
             clock.tick_busy_loop(60)
@@ -909,21 +922,22 @@ def get_data():
     print('throttle: ', throttle)
     print('brake: ', brake)
 
-    # Start at the point that is closest to the start way point
-    if( len(way_points) > 1):
-        for path_index in range(len(data['trajectory_x'])):
+    # # Start at the point that is closest to the start way point
+    # if( len(way_points) > 1):
+    #     for path_index in range(len(data['trajectory_x'])):
 
-            new_x = data['trajectory_x'][path_index]
-            new_y = data['trajectory_y'][path_index]
-            dist = math.sqrt(math.pow(new_x-way_points[1].location.x, 2)+math.pow(new_y-way_points[1].location.y, 2))
-            if dist < dist_thresh:
-                start_index = max(path_index-1,0)
-                break
-            elif dist < closest_dist:
-                start_index = max(path_index-1,0)
-                closest_dist = dist
-            if path_index is len(data['trajectory_x'])-1:
-                print("WARNING: distance start threshold not met ", closest_dist)
+    #         new_x = data['trajectory_x'][path_index]
+    #         new_y = data['trajectory_y'][path_index]
+    #         dist = math.sqrt(math.pow(new_x-way_points[1].location.x, 2)+math.pow(new_y-way_points[1].location.y, 2))
+    #         if dist < dist_thresh:
+    #             start_index = max(path_index-1,0)
+    #             break
+    #         elif dist < closest_dist:
+    #             start_index = max(path_index-1,0)
+    #             closest_dist = dist
+    #         if path_index is len(data['trajectory_x'])-1:
+    #             print("WARNING: distance start threshold not met ", closest_dist)
+    start_index = 0
 
     #print("start index ", start_index) # test if start_index is moving
 
